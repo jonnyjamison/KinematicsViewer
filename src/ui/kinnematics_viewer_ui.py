@@ -10,6 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from ui.plotting_features import PlottingFeatures
+from ui.import_features import ImportFeatures
 
 
 class Ui_MainWindow(object):
@@ -222,7 +223,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuExport.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.kinData.setCurrentIndex(1)
+        self.kinData.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -302,5 +303,6 @@ class KinematicsViewer(QtWidgets.QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.import_features = ImportFeatures(self.ui)
         self.plotting_features = PlottingFeatures(self.ui)
-
+        

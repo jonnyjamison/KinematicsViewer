@@ -22,7 +22,6 @@ class PlottingFeatures:
 
 
     def get_kinData_values(self):
-        
         # Nested dictionary with 'front' and 'rear' nested
         self.kinData_values = {}
 
