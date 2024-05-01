@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 class ImportFeatures:
     """
     This class handles the functionality of importing coordinates
-    from the provided xlsx template. 
+    from the provided xlsx template to the UI Table. 
     """
     
     def __init__(self, ui):
@@ -38,11 +38,10 @@ class ImportFeatures:
         xlsx_data = workbook.active
         
         # Accessing data from the sheet
-        for row in xlsx_data.iter_rows(values_only=True):
-            print(row)
+        #for row in xlsx_data.iter_rows(values_only=True):
+            #print(row)
                         
         # Add data to kinData UI Table
-        
         # For front 
         # Iterate over rows in the XLSX data
         table_start_row = 0
@@ -59,8 +58,6 @@ class ImportFeatures:
                 
         # For rear 
         # Iterate over rows in the xlsx data
-        table_start_row = 0
-        table_start_col = 0
         for xlsx_row, table_row in zip(range(3, 9), range(table_start_row, table_start_row + 6)):
             # Iterate over columns in the xlsx data
             for xlsx_col, table_col in zip(range(5, 8), range(table_start_col, table_start_col + 3)):
