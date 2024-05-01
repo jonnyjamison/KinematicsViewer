@@ -17,7 +17,12 @@ class PlottingFeatures:
 
 
     def setup_connections(self):
-        self.ui.plotButton.clicked.connect(self.handle_plot_button_click)
+        self.ui.plotButton.clicked.connect(self.handle_plot_button_click) # 'Plot!' UI button
+        # lambda function as connect expects slot function with 0 arguements
+        self.ui.frontViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('front'))
+        self.ui.sideViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('side')) 
+        self.ui.topViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('top')) 
+        self.ui.rearViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('rear')) 
 
 
     def handle_plot_button_click(self):
@@ -25,13 +30,13 @@ class PlottingFeatures:
         self.plot_coordinates()
         
         # Re-enable plot viewing buttons
-        self.ui.frontView.setEnabled(True)
-        self.ui.topView.setEnabled(True)
-        self.ui.sideView.setEnabled(True)
-        self.ui.rearView.setEnabled(True)
+        self.ui.frontViewButton.setEnabled(True)
+        self.ui.topViewButton.setEnabled(True)
+        self.ui.sideViewButton.setEnabled(True)
+        self.ui.rearViewButton.setEnabled(True)
+
 
     def get_kinData_values(self):
-
         # Nested dictionary with 'front' and 'rear' nested
         self.kinData_values = {}
 
@@ -63,7 +68,6 @@ class PlottingFeatures:
         return self.kinData_values
                     
     def plot_coordinates(self):
-
         # Clear the plot area
         layout = self.ui.plotArea.layout()
         if layout is not None:
@@ -78,36 +82,31 @@ class PlottingFeatures:
         canvas = FigureCanvas(fig)
 
         # Add a 3D subplot to the figure
-        ax = fig.add_subplot(111, projection='3d')
+        self.ax = fig.add_subplot(111, projection='3d')
 
         # Plot Origin
-        ax.scatter(0, 0, 0, c='r', marker='X')
+        self.ax.scatter(0, 0, 0, c='r', marker='X')
 
         # Plot the kinData coordinates
         for position, values in self.kinData_values.items():
             x_values = [value[0] for value in values.values()]
             y_values = [value[1] for value in values.values()]
             z_values = [value[2] for value in values.values()]
-            ax.scatter(x_values, y_values, z_values, label=position)
+            self.ax.scatter(x_values, y_values, z_values, label=position)
             
         # Plot mirrored coordinates (for opposite side)
         for position, values in self.kinData_values.items():
             x_values_mirrored = [value[0]*-1 for value in values.values()]
             y_values = [value[1] for value in values.values()]
             z_values = [value[2] for value in values.values()]
-            ax.scatter(x_values_mirrored, y_values, z_values, label=position)
+            self.ax.scatter(x_values_mirrored, y_values, z_values, label=position)
         
         # Plot wishbones
-        self.plot_wishbones(ax)
-        # x_line = [self.kinData_values['front']['upper_leading_pivot'][0], self.kinData_values['front']['upper_upright_pivot'][0]]
-        # y_line = [self.kinData_values['front']['upper_leading_pivot'][1], self.kinData_values['front']['upper_upright_pivot'][1]]
-        # z_line = [self.kinData_values['front']['upper_leading_pivot'][2], self.kinData_values['front']['upper_upright_pivot'][2]]
-        # #ax.plot(self.kinData_values['front']['upper_leading_pivot'], self.kinData_values['front']['upper_upright_pivot'])
-        # ax.plot(x_line, y_line, z_line)
+        self.plot_wishbones()
         
         # Hide grid lines and axis
-        ax.grid(False)
-        ax.axis('off')
+        self.ax.grid(False)
+        self.ax.axis('off')
 
         # Create a navigation toolbar for the plot
         toolbar = NavigationToolbar(canvas, self.ui.centralwidget)  # Change self.ui to self.ui.centralwidget
@@ -121,8 +120,7 @@ class PlottingFeatures:
         self.ui.plotArea.setLayout(layout)
         
         
-    def plot_wishbones(self,ax):
-        
+    def plot_wishbones(self):
         for axle in ['front', 'rear']:
             for position in ['upper', 'lower']:
                 for wishbone in ['leading', 'trailling']:
@@ -131,25 +129,33 @@ class PlottingFeatures:
                     x_line_mirrored = [self.kinData_values[axle][f'{position}_{wishbone}_pivot'][0]*-1, self.kinData_values[axle][f'{position}_upright_pivot'][0]*-1]
                     y_line = [self.kinData_values[axle][f'{position}_{wishbone}_pivot'][1], self.kinData_values[axle][f'{position}_upright_pivot'][1]]
                     z_line = [self.kinData_values[axle][f'{position}_{wishbone}_pivot'][2], self.kinData_values[axle][f'{position}_upright_pivot'][2]]
-                    ax.plot(x_line, y_line, z_line)
+                    self.ax.plot(x_line, y_line, z_line)
                     # Plot mirrored wishbones for other side of car
-                    ax.plot(x_line, y_line, z_line)
-                    ax.plot(x_line_mirrored, y_line, z_line)
-                    
-                # # Plot Leading
-                # x_line = [self.kinData_values[axle][f'{position}_leading_pivot'][0], self.kinData_values[axle][f'{position}_upright_pivot'][0]]
-                # y_line = [self.kinData_values[axle][f'{position}_leading_pivot'][1], self.kinData_values[axle][f'{position}_upright_pivot'][1]]
-                # z_line = [self.kinData_values[axle][f'{position}_leading_pivot'][2], self.kinData_values[axle][f'{position}_upright_pivot'][2]]
-                # ax.plot(x_line, y_line, z_line)
-                
-                # # Plot Trailling 
-                # x_line = [self.kinData_values[axle][f'{position}_trailling_pivot'][0], self.kinData_values[axle][f'{position}_upright_pivot'][0]]
-                # y_line = [self.kinData_values[axle][f'{position}_trailling_pivot'][1], self.kinData_values[axle][f'{position}_upright_pivot'][1]]
-                # z_line = [self.kinData_values[axle][f'{position}_trailling_pivot'][2], self.kinData_values[axle][f'{position}_upright_pivot'][2]]
-                # ax.plot(x_line, y_line, z_line)
-                
-                # x_line = [self.kinData_values['front']['upper_leading_pivot'][0], self.kinData_values['front']['upper_upright_pivot'][0]]
-                # y_line = [self.kinData_values['front']['upper_leading_pivot'][1], self.kinData_values['front']['upper_upright_pivot'][1]]
-                # z_line = [self.kinData_values['front']['upper_leading_pivot'][2], self.kinData_values['front']['upper_upright_pivot'][2]]
-                
-                # ax.plot(x_line, y_line, z_line)
+                    self.ax.plot(x_line, y_line, z_line)
+                    self.ax.plot(x_line_mirrored, y_line, z_line)
+
+    
+    def handle_plot_view_button_click(self,view):
+        if view == 'front':
+            # Set view parallel to the x-axis
+            self.ax.view_init(elev=90, azim=270)
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas.draw()
+            
+        elif view == 'side':
+            # Set view parallel to the x-axis
+            self.ax.view_init(elev=180, azim=270)
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas.draw()
+            
+        elif view == 'top':
+            # Set view parallel to the x-axis
+            self.ax.view_init(elev=180, azim=270)
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas.draw()
+            
+        elif view == 'rear':
+            # Set view parallel to the x-axis
+            self.ax.view_init(elev=90, azim=270)
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas.draw()

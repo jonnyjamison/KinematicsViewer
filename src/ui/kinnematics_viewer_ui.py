@@ -98,22 +98,22 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.frontView = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.frontView.setObjectName("frontView")
-        self.frontView.setEnabled(False) #Disable button when GUI is first loaded
-        self.horizontalLayout.addWidget(self.frontView)
-        self.sideView = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.sideView.setObjectName("sideView")
-        self.sideView.setEnabled(False) #Disable button when GUI is first loaded
-        self.horizontalLayout.addWidget(self.sideView)
-        self.topView = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.topView.setObjectName("topView")
-        self.topView.setEnabled(False) #Disable button when GUI is first loaded
-        self.horizontalLayout.addWidget(self.topView)
-        self.rearView = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.rearView.setObjectName("rearView")
-        self.rearView.setEnabled(False) #Disable button when GUI is first loaded
-        self.horizontalLayout.addWidget(self.rearView)
+        self.frontViewButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.frontViewButton.setObjectName("frontViewButton")
+        self.frontViewButton.setEnabled(False) #Disable button when GUI is first loaded
+        self.horizontalLayout.addWidget(self.frontViewButton)
+        self.sideViewButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.sideViewButton.setObjectName("sideViewButton")
+        self.sideViewButton.setEnabled(False) #Disable button when GUI is first loaded
+        self.horizontalLayout.addWidget(self.sideViewButton)
+        self.topViewButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.topViewButton.setObjectName("topViewButton")
+        self.topViewButton.setEnabled(False) #Disable button when GUI is first loaded
+        self.horizontalLayout.addWidget(self.topViewButton)
+        self.rearViewButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.rearViewButton.setObjectName("rearViewButton")
+        self.rearViewButton.setEnabled(False) #Disable button when GUI is first loaded
+        self.horizontalLayout.addWidget(self.rearViewButton)
         self.frame = QtWidgets.QFrame(self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(600, 390, 351, 51))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -271,10 +271,10 @@ class Ui_MainWindow(object):
         item = self.rearInput.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "z"))
         self.kinData.setTabText(self.kinData.indexOf(self.rear), _translate("MainWindow", "Rear"))
-        self.frontView.setText(_translate("MainWindow", "Front"))
-        self.sideView.setText(_translate("MainWindow", "Side"))
-        self.topView.setText(_translate("MainWindow", "Top"))
-        self.rearView.setText(_translate("MainWindow", "Rear"))
+        self.frontViewButton.setText(_translate("MainWindow", "Front"))
+        self.sideViewButton.setText(_translate("MainWindow", "Side"))
+        self.topViewButton.setText(_translate("MainWindow", "Top"))
+        self.rearViewButton.setText(_translate("MainWindow", "Rear"))
         self.checkRollCentre.setText(_translate("MainWindow", "Roll Centre"))
         self.checkWheelAxis.setText(_translate("MainWindow", "Wheel Axis"))
         self.checkSideViewIC.setText(_translate("MainWindow", "Side View IC"))

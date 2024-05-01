@@ -36,11 +36,7 @@ class ImportFeatures:
         workbook = load_workbook(filename=file_path)
         # Read data from the first sheet
         xlsx_data = workbook.active
-        
-        # Accessing data from the sheet
-        #for row in xlsx_data.iter_rows(values_only=True):
-            #print(row)
-                        
+                                
         # Add data to kinData UI Table
         # For front 
         # Iterate over rows in the XLSX data
