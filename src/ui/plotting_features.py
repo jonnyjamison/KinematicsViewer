@@ -18,7 +18,8 @@ class PlottingFeatures:
         self.setup_connections()
         self.analysis_features = None  # Initialize analysis_features attribute
 
-
+        # Initialize layout for plotArea
+        #self.plot_layout = QVBoxLayout(self.ui.plotArea)
 
     def setup_connections(self):
         self.ui.plotButton.clicked.connect(self.handle_plot_button_click) # 'Plot!' UI button
@@ -81,65 +82,97 @@ class PlottingFeatures:
         return self.kinData_values
                     
     def plot_coordinates(self):
-        # Clear the plot area
-        layout = self.ui.plotArea.layout()
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
-
-        # Create a Matplotlib figure and canvas
-        fig = Figure()
-        canvas = FigureCanvas(fig)
-
-        # Add a 3D subplot to the figure
-        self.ax = fig.add_subplot(111, projection='3d')
-
-        # Plot Origin
-        self.ax.scatter(0, 0, 0, c='r', marker='X')
         
-        # Plot the kinData coordinates
-        for position, values in self.kinData_values.items():
-            x_values = [value[0] for value in values.values()]
-            y_values = [value[1] for value in values.values()]
-            z_values = [value[2] for value in values.values()]
-            self.ax.scatter(x_values, y_values, z_values, label=position)
+        if not hasattr(self, 'fig'):
+            # Create a Matplotlib figure and canvas
+            self.fig = Figure()
+            self.canvas = FigureCanvas(self.fig)
+
+            # Add a 3D subplot to the figure
+            self.ax = self.fig.add_subplot(111, projection='3d')
+
+            # Plot Origin
+            self.ax.scatter(0, 0, 0, c='r', marker='X')
             
-        # Plot mirrored coordinates (for opposite side)
-        for position, values in self.kinData_values.items():
-            x_values_mirrored = [value[0]*-1 for value in values.values()]
-            y_values = [value[1] for value in values.values()]
-            z_values = [value[2] for value in values.values()]
-            self.ax.scatter(x_values_mirrored, y_values, z_values, label=position)
-        
-        # Plot wishbones
-        self.plot_wishbones()
-        
-        # Dynamically work out axis limits to make agnostic of units & origin
-        # Equal to +5% from front leading & rear trailing wishbones
-        axis_limit_upper = max(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05
-        axis_limit_lower = min(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05 
-        self.ax.set_xlim(axis_limit_lower, axis_limit_upper)
-        self.ax.set_ylim(axis_limit_lower, axis_limit_upper)
-        self.ax.set_zlim(axis_limit_lower, axis_limit_upper)
-        
-        # Hide grid lines and axis
-        self.ax.grid(False)
-        self.ax.axis('off')
+            # Plot the kinData coordinates
+            for position, values in self.kinData_values.items():
+                x_values = [value[0] for value in values.values()]
+                y_values = [value[1] for value in values.values()]
+                z_values = [value[2] for value in values.values()]
+                self.ax.scatter(x_values, y_values, z_values, label=position)
+                
+            # Plot mirrored coordinates (for opposite side)
+            for position, values in self.kinData_values.items():
+                x_values_mirrored = [value[0]*-1 for value in values.values()]
+                y_values = [value[1] for value in values.values()]
+                z_values = [value[2] for value in values.values()]
+                self.ax.scatter(x_values_mirrored, y_values, z_values, label=position)
+            
+            # Plot wishbones
+            self.plot_wishbones()
+            
+            # Dynamically work out axis limits to make agnostic of units & origin
+            # Equal to +5% from front leading & rear trailing wishbones
+            axis_limit_upper = max(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05
+            axis_limit_lower = min(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05 
+            self.ax.set_xlim(axis_limit_lower, axis_limit_upper)
+            self.ax.set_ylim(axis_limit_lower, axis_limit_upper)
+            self.ax.set_zlim(axis_limit_lower, axis_limit_upper)
+            
+            # Hide grid lines and axis
+            self.ax.grid(False)
+            self.ax.axis('off')
 
-        # Create a navigation toolbar for the plot
-        toolbar = NavigationToolbar(canvas, self.ui.centralwidget)  # Change self.ui to self.ui.centralwidget
+            # Create a navigation toolbar for the plot
+            toolbar = NavigationToolbar(self.canvas, self.ui.centralwidget)  # Change self.ui to self.ui.centralwidget
 
-        # Clear the plotArea layout and add the Matplotlib canvas and toolbar
-        layout = QVBoxLayout(self.ui.plotArea)
-        layout.addWidget(toolbar)
-        layout.addWidget(canvas)
+            # Clear the plotArea layout and add the Matplotlib canvas and toolbar
+            layout = QVBoxLayout(self.ui.plotArea)
+            layout.addWidget(toolbar)
+            layout.addWidget(self.canvas)
 
-        # Update the plotArea widget
-        self.ui.plotArea.setLayout(layout)
-        
+            # Update the plotArea widget
+            self.ui.plotArea.setLayout(layout)
+
+        else:
+            # Clear the previous plot
+            self.ax.clear()
+
+            # Plot Origin
+            self.ax.scatter(0, 0, 0, c='r', marker='X')
+            
+            # Plot the kinData coordinates
+            for position, values in self.kinData_values.items():
+                x_values = [value[0] for value in values.values()]
+                y_values = [value[1] for value in values.values()]
+                z_values = [value[2] for value in values.values()]
+                self.ax.scatter(x_values, y_values, z_values, label=position)
+                
+            # Plot mirrored coordinates (for opposite side)
+            for position, values in self.kinData_values.items():
+                x_values_mirrored = [value[0]*-1 for value in values.values()]
+                y_values = [value[1] for value in values.values()]
+                z_values = [value[2] for value in values.values()]
+                self.ax.scatter(x_values_mirrored, y_values, z_values, label=position)
+            
+            # Plot wishbones
+            self.plot_wishbones()
+            
+            # Dynamically work out axis limits to make agnostic of units & origin
+            # Equal to +5% from front leading & rear trailing wishbones
+            axis_limit_upper = max(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05
+            axis_limit_lower = min(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05 
+            self.ax.set_xlim(axis_limit_lower, axis_limit_upper)
+            self.ax.set_ylim(axis_limit_lower, axis_limit_upper)
+            self.ax.set_zlim(axis_limit_lower, axis_limit_upper)
+            
+            # Hide grid lines and axis
+            self.ax.grid(False)
+            self.ax.axis('off')
+
+            # Refresh canvas
+            self.canvas.draw()
+                
         
     def plot_wishbones(self):
         for axle in ['front', 'rear']:
