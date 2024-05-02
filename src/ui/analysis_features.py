@@ -15,16 +15,20 @@ class AnalysisFeatures:
             
         
     def setup_connections(self):
-
-        #print(f"{self.kinData_values['front']['upper_leading_pivot']}")
         self.ui.checkWheelAxis.stateChanged.connect(self.handle_checkWheelAxis_state_changed)        
         self.ui.checkRollCentre.stateChanged.connect(self.handle_checkRollCentre_state_changed)
         self.ui.checkSideViewIC.stateChanged.connect(self.handle_checkSideViewIC_state_changed)
         
     def handle_checkWheelAxis_state_changed(self, state):
         
+       # Clear previously plotted lines when button unchecked
+        if hasattr(self, 'extended_lines'):
+            for line in self.extended_lines:
+                line.remove()
+            del self.extended_lines
+    
         if state == Qt.Checked:
-            
+            self.extended_lines = []
             for position in ['front', 'rear']:
                 # Coordinates of the upper upright pivot
                 x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
@@ -46,7 +50,7 @@ class AnalysisFeatures:
                 x_intersect_y0 = -y_intercept / slope
 
                 # Extend upper coordinate by 50%
-                y_desired = y_upper * 1.55
+                y_desired = y_upper * 1.5
 
                 # Calculate the x-coordinate where the line intersects 
                 x_intersect_desired_y = (y_desired - y_intercept) / slope
@@ -56,20 +60,18 @@ class AnalysisFeatures:
                 y_line_extended = [y_lower, 0, y_desired]
                 z_line_extended = [z_lower, z_lower, z_lower]
                 
-                # Plot the extended wheel axis line
-                self.ax.plot(x_line_extended, y_line_extended, z_line_extended, linestyle='--', linewidth=1, color='red')
+                # Plot extended wheel axis line
+                line = self.ax.plot(x_line_extended, y_line_extended, z_line_extended, linestyle='--', linewidth=1, color='red')[0]
+                self.extended_lines.append(line)
                 
                 # For other side of car (mirror in x axis)
                 x_line_extended_mirror = [-x for x in x_line_extended]
 
                 # Plot the mirror image of the extended line
-                self.ax.plot(x_line_extended_mirror, y_line_extended, z_line_extended, linestyle='--', linewidth=1, color='red')
+                line_mirrored = self.ax.plot(x_line_extended_mirror, y_line_extended, z_line_extended, linestyle='--', linewidth=1, color='red')[0]
+                self.extended_lines.append(line_mirrored)
                     
-        else:
-            
-            # Remove wheels and Wheel Axis 
-            print("WIP")
-        
+
     def handle_checkRollCentre_state_changed(self, state):
         print("WIP")
             
