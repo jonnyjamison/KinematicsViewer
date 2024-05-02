@@ -1,10 +1,12 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QToolBar 
 from PyQt5.QtWidgets import QTableWidgetItem, QVBoxLayout, QWidget
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+from ui.analysis_features import AnalysisFeatures
 
 class PlottingFeatures:
     """
@@ -14,6 +16,8 @@ class PlottingFeatures:
     def __init__(self, ui):
         self.ui = ui
         self.setup_connections()
+        self.analysis_features = None  # Initialize analysis_features attribute
+
 
 
     def setup_connections(self):
@@ -34,6 +38,15 @@ class PlottingFeatures:
         self.ui.topViewButton.setEnabled(True)
         self.ui.sideViewButton.setEnabled(True)
         self.ui.rearViewButton.setEnabled(True)
+        
+        # Re-enable check boxes
+        self.ui.checkRollCentre.setEnabled(True)
+        self.ui.checkWheelAxis.setEnabled(True)
+        self.ui.checkSideViewIC.setEnabled(True)
+
+        # Create instance of analysis_features for Roll centre, etc. 
+        if not self.analysis_features:
+            self.analysis_features = AnalysisFeatures(self, self.ui)
 
 
     def get_kinData_values(self):
@@ -86,7 +99,7 @@ class PlottingFeatures:
 
         # Plot Origin
         self.ax.scatter(0, 0, 0, c='r', marker='X')
-
+        
         # Plot the kinData coordinates
         for position, values in self.kinData_values.items():
             x_values = [value[0] for value in values.values()]
@@ -103,6 +116,14 @@ class PlottingFeatures:
         
         # Plot wishbones
         self.plot_wishbones()
+        
+        # Dynamically work out axis limits to make agnostic of units & origin
+        # Equal to +5% from front leading & rear trailing wishbones
+        axis_limit_upper = max(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05
+        axis_limit_lower = min(self.kinData_values['front']['lower_leading_pivot'][2], self.kinData_values['rear']['lower_trailling_pivot'][2]) * 1.05 
+        self.ax.set_xlim(axis_limit_lower, axis_limit_upper)
+        self.ax.set_ylim(axis_limit_lower, axis_limit_upper)
+        self.ax.set_zlim(axis_limit_lower, axis_limit_upper)
         
         # Hide grid lines and axis
         self.ax.grid(False)
@@ -144,7 +165,7 @@ class PlottingFeatures:
             
         elif view == 'side':
             # Set view parallel to the x-axis
-            self.ax.view_init(elev=180, azim=270)
+            self.ax.view_init(elev=0, azim=0)
             canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
             canvas.draw()
             
@@ -156,6 +177,6 @@ class PlottingFeatures:
             
         elif view == 'rear':
             # Set view parallel to the x-axis
-            self.ax.view_init(elev=90, azim=270)
+            self.ax.view_init(elev=-90, azim=90)
             canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
             canvas.draw()
