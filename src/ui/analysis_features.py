@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 import math
+import numpy as np
 
 
 
@@ -18,8 +19,9 @@ class AnalysisFeatures:
         self.kinData_values = plotting_features.kinData_values
         self.setup_connections()
         self.calculate_camber()
-            
+        self.calculate_toe()
         
+            
     def setup_connections(self):
         self.ui.checkWheelAxis.stateChanged.connect(self.handle_checkWheelAxis_state_changed)        
         self.ui.checkRollCentre.stateChanged.connect(self.handle_checkRollCentre_state_changed)
@@ -89,9 +91,7 @@ class AnalysisFeatures:
             for position in ['front', 'rear']:
                 print("WIP")
             
-        
-            
-    
+
     def handle_checkSideViewIC_state_changed(self, state):
         print("WIP")
         
@@ -104,20 +104,53 @@ class AnalysisFeatures:
             x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
             y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
 
-            # Calculate the slope
+            # Calculate slope
             slope = (y_upper - y_lower) / (x_upper - x_lower)
 
-            # Calculate the angle in radians
+            # Calculate angle in radians
             angle_radians = math.atan2(y_upper - y_lower, x_upper - x_lower)
 
             # Convert angle from radians to degrees
             angle_degrees = math.degrees(angle_radians)
 
             # The angle with the y-axis is complementary to the angle with the x-axis
-            camber = 90 - angle_degrees
+            camber_angle_degrees = 90 - angle_degrees
             
             # Populate tableOutput with camber value
             if position == 'front':
-                self.ui.tableOutput.setItem(0, 0, QTableWidgetItem(str(camber)[0:6]))
+                self.ui.tableOutput.setItem(0, 0, QTableWidgetItem(str(camber_angle_degrees)[0:6]))
             else:
-                self.ui.tableOutput.setItem(0, 1, QTableWidgetItem(str(camber)[0:6]))
+                self.ui.tableOutput.setItem(0, 1, QTableWidgetItem(str(camber_angle_degrees)[0:6]))
+                
+    
+    def calculate_toe(self):
+        for position in ['front', 'rear']:
+            # Coordinates of the upper and lower upright pivot
+            x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
+            y_upper = self.kinData_values[position]['upper_upright_pivot'][1]
+            z_upper = self.kinData_values[position]['upper_upright_pivot'][2]
+            x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
+            y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
+            z_lower = self.kinData_values[position]['lower_upright_pivot'][2]
+
+            # Vector representing the upper wishbone hardpoint
+            vec_upper = np.array([x_upper, y_upper, z_upper])
+
+            # Vector representing the lower wishbone hardpoint
+            vec_lower = np.array([x_lower, y_lower, z_lower])
+
+            # Project the vectors onto the xz-plane by setting their y-components to 0
+            vec_upper_proj = np.array([x_upper, 0, z_upper])
+            vec_lower_proj = np.array([x_lower, 0, z_lower])
+
+            # Calculate the angle between the projected vectors
+            cos_angle = np.dot(vec_upper_proj, vec_lower_proj) / (np.linalg.norm(vec_upper_proj) * np.linalg.norm(vec_lower_proj))
+            angle_radians = np.arccos(cos_angle)
+            angle_degrees = np.degrees(angle_radians)
+
+            
+            # Update tableOutput
+            if position == 'front':
+                self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(str(angle_degrees)[0:6]))
+            else:
+                self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(str(angle_degrees)[0:6]))
