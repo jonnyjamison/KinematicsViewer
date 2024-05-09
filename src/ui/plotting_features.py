@@ -17,9 +17,7 @@ class PlottingFeatures:
         self.ui = ui
         self.setup_connections()
         self.analysis_features = None  # Initialize analysis_features attribute
-
-        # Initialize layout for plotArea
-        #self.plot_layout = QVBoxLayout(self.ui.plotArea)
+        
 
     def setup_connections(self):
         self.ui.plotButton.clicked.connect(self.handle_plot_button_click) # 'Plot!' UI button
@@ -82,7 +80,6 @@ class PlottingFeatures:
         return self.kinData_values
                     
     def plot_coordinates(self):
-        
         if not hasattr(self, 'fig'):
             # Create a Matplotlib figure and canvas
             self.fig = Figure()
