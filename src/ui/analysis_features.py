@@ -204,7 +204,7 @@ class AnalysisFeatures:
                 self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(str(angle_degrees)[0:6]))
                 
                 
-    def calculate_caster_angle(self):
+    def calculate_caster(self):
         for position in ['front', 'rear']:
             # Coordinates of the upper and lower upright pivot
             x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
