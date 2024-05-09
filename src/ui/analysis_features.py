@@ -6,11 +6,11 @@ import math
 import numpy as np
 
 
-
 class AnalysisFeatures:
     """
     A class for plotting analysis of geomtery and 
     calculating metrics such as camber etc.
+    Also incudes tool for plotting representation of a tyre. 
     """
     def __init__(self, plotting_features, ui):
         self.ui = ui
@@ -25,7 +25,7 @@ class AnalysisFeatures:
     def setup_connections(self):
         self.ui.checkWheelAxis.stateChanged.connect(self.handle_checkWheelAxis_state_changed)        
         self.ui.checkRollCentre.stateChanged.connect(self.handle_checkRollCentre_state_changed)
-        self.ui.checkSideViewIC.stateChanged.connect(self.handle_checkSideViewIC_state_changed)
+        self.ui.checkShowTyres.stateChanged.connect(self.handle_checkShowTyres_state_changed)
        
         
     def handle_checkWheelAxis_state_changed(self, state):   
@@ -81,21 +81,77 @@ class AnalysisFeatures:
                     
 
     def handle_checkRollCentre_state_changed(self, state):
-        if hasattr(self, 'RollCentre_lines'):
-            for line in self.RollCentre_lines:
-                line.remove()
-            del self.RollCentre_lines
+        if hasattr(self, 'RollCentre_plot'):
+            for plot in self.RollCentre_plot:
+                plot.remove()
+            del self.RollCentre_plot
         
         if state == Qt.Checked:
-            self.RollCentre_lines = []
-            for position in ['front', 'rear']:
-                print("WIP")
+            self.RollCentre_plot = []
             
+            for position in ['front', 'rear']:
+                # Coordinates of the upper and lower wishbone hardpoints
+                upper_leading_pivot = np.array(self.kinData_values[position]['upper_leading_pivot'])
+                lower_leading_pivot = np.array(self.kinData_values[position]['lower_leading_pivot'])
+                upper_trailing_pivot = np.array(self.kinData_values[position]['upper_trailling_pivot'])
+                lower_trailing_pivot = np.array(self.kinData_values[position]['lower_trailling_pivot'])
+                               
+                # Calculate vectors representing the wishbones
+                wishbone1_vec = upper_trailing_pivot - upper_leading_pivot[0]  # Vector along the first wishbone
+                wishbone2_vec = lower_trailing_pivot - lower_leading_pivot # Vector along the second wishbone
+                
+                # Calculate the normal vectors to the wishbones
+                normal_vec = np.cross(wishbone1_vec, wishbone2_vec)
+                
+                roll_centre = np.array([0, 0, 0])
+                if normal_vec[1] != 0:
+                    roll_centre = np.cross(normal_vec, [0, 1, 0])
+                    if roll_centre[1] != 0:
+                        roll_centre /= roll_centre[1]  # Normalize by y-coordinate to get a point on the y = 0 plane
+                    else:
+                        roll_centre[1] = 0  # Set y-coordinate to zero if division by zero occurs
+                           
+                # Plot roll centre if calculated successfully
+                if not np.allclose([roll_centre[0], roll_centre[2]], [0, 0]):
+                    roll_centre_marker = self.ax.plot(roll_centre[0], roll_centre[1] ,roll_centre[2], marker='*', linewidth=1)[0]
+                    self.RollCentre_plot.append(roll_centre_marker)
+                else:
+                    print("Roll center is at origin [0, 0, 0], indicating an error in calculation, possibly due to parallel wishbones") 
+                
+                
+    def handle_checkShowTyres_state_changed(self, state):
+        if hasattr(self, 'tyre_plots'):
+            for plot in self.tyre_plots:
+                plot.remove()
+            del self.tyre_plots
+        
+        if state == Qt.Checked:
+            self.tyre_plots = []
+            
+            for position in ['front', 'rear']:
+                upper_upright_pivot = np.array(self.kinData_values[position]['upper_upright_pivot'])
+                lower_upright_pivot = np.array(self.kinData_values[position]['lower_upright_pivot'])
+                
+                # Calculate the midpoint between hardpoints 
+                midpoint = (upper_upright_pivot + lower_upright_pivot) / 2
 
-    def handle_checkSideViewIC_state_changed(self, state):
-        print("WIP")
-        
-        
+                # Define the diameter of the tyre
+                tyre_diameter = upper_upright_pivot[1] + lower_upright_pivot[1]
+
+                # Number of circles to to represent tyre width
+                num_circles = 10
+                tyre_radius = tyre_diameter / 2
+                tyre_width = 0.15
+
+                for x_direction in [1, -1]: # To plot mirrored tyres for other side of vehicle
+                    for i in range(num_circles):
+                        tyre_x = (midpoint[0] + (i * (tyre_width / num_circles)) * np.ones(100)) * x_direction
+                        tyre_z = midpoint[2] + np.cos(np.linspace(0, 2*np.pi, 100)) * tyre_radius
+                        tyre_y = midpoint[1] + np.sin(np.linspace(0, 2*np.pi, 100)) * tyre_radius
+                        tyre_plot = self.ax.plot(tyre_x, tyre_y, tyre_z)
+                        self.tyre_plots.append(tyre_plot)
+
+
     def calculate_camber(self):
         for position in ['front', 'rear']:
             # Coordinates of upright pivot
@@ -127,17 +183,9 @@ class AnalysisFeatures:
         for position in ['front', 'rear']:
             # Coordinates of the upper and lower upright pivot
             x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
-            y_upper = self.kinData_values[position]['upper_upright_pivot'][1]
             z_upper = self.kinData_values[position]['upper_upright_pivot'][2]
             x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
-            y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
             z_lower = self.kinData_values[position]['lower_upright_pivot'][2]
-
-            # Vector representing the upper wishbone hardpoint
-            vec_upper = np.array([x_upper, y_upper, z_upper])
-
-            # Vector representing the lower wishbone hardpoint
-            vec_lower = np.array([x_lower, y_lower, z_lower])
 
             # Project the vectors onto the xz-plane by setting their y-components to 0
             vec_upper_proj = np.array([x_upper, 0, z_upper])
@@ -148,7 +196,6 @@ class AnalysisFeatures:
             angle_radians = np.arccos(cos_angle)
             angle_degrees = np.degrees(angle_radians)
 
-            
             # Update tableOutput
             if position == 'front':
                 self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(str(angle_degrees)[0:6]))

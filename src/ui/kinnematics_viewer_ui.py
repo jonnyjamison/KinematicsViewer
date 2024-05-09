@@ -11,7 +11,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from ui.plotting_features import PlottingFeatures
 from ui.import_features import ImportFeatures
-from ui.analysis_features import AnalysisFeatures
 
 
 class Ui_MainWindow(object):
@@ -128,16 +127,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.checkRollCentre = QtWidgets.QCheckBox(self.horizontalLayoutWidget_2)
         self.checkRollCentre.setObjectName("checkRollCentre")
-        #self.checkRollCentre.setEnabled(False) #Disable checkbox when GUI is first loaded
+        self.checkRollCentre.setEnabled(False) #Disable button when GUI is first loaded
         self.horizontalLayout_2.addWidget(self.checkRollCentre)
         self.checkWheelAxis = QtWidgets.QCheckBox(self.horizontalLayoutWidget_2)
         self.checkWheelAxis.setObjectName("checkWheelAxis")
-        #self.checkWheelAxis.setEnabled(False) #Disable checkbox when GUI is first loaded
+        self.checkWheelAxis.setEnabled(False) #Disable button when GUI is first loaded
         self.horizontalLayout_2.addWidget(self.checkWheelAxis)
-        self.checkSideViewIC = QtWidgets.QCheckBox(self.horizontalLayoutWidget_2)
-        self.checkSideViewIC.setObjectName("checkSideViewIC")
-        #self.checkSideViewIC.setEnabled(False) #Disable checkbox when GUI is first loaded
-        self.horizontalLayout_2.addWidget(self.checkSideViewIC)
+        self.checkShowTyres = QtWidgets.QCheckBox(self.horizontalLayoutWidget_2)
+        self.checkShowTyres.setObjectName("checkShowTyres")
+        self.checkShowTyres.setEnabled(False) #Disable button when GUI is first loaded
+        self.horizontalLayout_2.addWidget(self.checkShowTyres)
         self.tableOutput = QtWidgets.QTableWidget(self.centralwidget)
         self.tableOutput.setGeometry(QtCore.QRect(660, 450, 241, 151))
         self.tableOutput.setObjectName("tableOutput")
@@ -281,7 +280,7 @@ class Ui_MainWindow(object):
         self.rearViewButton.setText(_translate("MainWindow", "Rear"))
         self.checkRollCentre.setText(_translate("MainWindow", "Roll Centre"))
         self.checkWheelAxis.setText(_translate("MainWindow", "Wheel Axis"))
-        self.checkSideViewIC.setText(_translate("MainWindow", "Side View IC"))
+        self.checkShowTyres.setText(_translate("MainWindow", "Show Tyres"))
         item = self.tableOutput.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "Camber"))
         item = self.tableOutput.verticalHeaderItem(1)
@@ -303,6 +302,9 @@ class Ui_MainWindow(object):
         self.actionSave_As.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionImport_from_xls.setText(_translate("MainWindow", "Import from .xls"))
         self.actionExport_to_xls.setText(_translate("MainWindow", "Export to .xls"))
+
+        #Background colour
+        #self.centralwidget.setStyleSheet("background-color: white;")
 
 
 

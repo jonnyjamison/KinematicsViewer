@@ -43,7 +43,7 @@ class PlottingFeatures:
         # Re-enable check boxes
         self.ui.checkRollCentre.setEnabled(True)
         self.ui.checkWheelAxis.setEnabled(True)
-        self.ui.checkSideViewIC.setEnabled(True)
+        self.ui.checkShowTyres.setEnabled(True)
 
         # Create instance of analysis_features for Roll centre, etc. 
         if not self.analysis_features:

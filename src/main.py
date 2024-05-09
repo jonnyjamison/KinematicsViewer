@@ -1,8 +1,3 @@
-## TODO
-
-# Toe from wheel axis
-# Plot tyre
-
 import sys
 from PyQt5.QtWidgets import QApplication
 from ui.kinnematics_viewer_ui import KinematicsViewer
