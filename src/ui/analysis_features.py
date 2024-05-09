@@ -8,11 +8,17 @@ import numpy as np
 
 class AnalysisFeatures:
     """
-    A class for plotting analysis of geomtery and 
-    calculating metrics such as camber etc.
-    Also incudes tool for plotting representation of a tyre. 
+    A class for plotting analysis of geometry and calculating metrics such as camber, toe, and caster.
     """
+
     def __init__(self, plotting_features, ui):
+        """
+        Initialize AnalysisFeatures object.
+
+        Parameters:
+            plotting_features (PlottingFeatures): An instance of PlottingFeatures containing data for plotting.
+            ui (UIWidget): An instance of UIWidget for interacting with the user interface.
+        """
         self.ui = ui
         #self.ui = plotting_features.ui
         self.ax = plotting_features.ax
@@ -21,15 +27,22 @@ class AnalysisFeatures:
         self.calculate_camber()
         self.calculate_toe()
         self.calculate_caster()
-        
             
     def setup_connections(self):
+        """
+        Set up connections between UI widget signals and corresponding methods.
+        """
         self.ui.checkWheelAxis.stateChanged.connect(self.handle_checkWheelAxis_state_changed)        
         self.ui.checkRollCentre.stateChanged.connect(self.handle_checkRollCentre_state_changed)
         self.ui.checkShowTyres.stateChanged.connect(self.handle_checkShowTyres_state_changed)
        
-        
-    def handle_checkWheelAxis_state_changed(self, state):   
+    def handle_checkWheelAxis_state_changed(self, state):
+        """
+        Handle the state change of the checkWheelAxis checkbox.
+
+        Parameters:
+            state (Qt.CheckState): The new state of the checkbox.
+        """   
        # Clear previously plotted lines when button unchecked
         if hasattr(self, 'extended_WheelAxis_lines'):
             for line in self.extended_WheelAxis_lines:
@@ -38,16 +51,16 @@ class AnalysisFeatures:
     
         if state == Qt.Checked:
             self.extended_WheelAxis_lines = []
-            for position in ['front', 'rear']:
+            for axle in ['front', 'rear']:
                 # Coordinates of the upper upright pivot
-                x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
-                y_upper = self.kinData_values[position]['upper_upright_pivot'][1]
-                z_upper = self.kinData_values[position]['upper_upright_pivot'][2]
+                x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
+                y_upper = self.kinData_values[axle]['upper_upright_pivot'][1]
+                z_upper = self.kinData_values[axle]['upper_upright_pivot'][2]
 
                 # Coordinates of the lower upright pivot
-                x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
-                y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
-                z_lower = self.kinData_values[position]['lower_upright_pivot'][2]
+                x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
+                y_lower = self.kinData_values[axle]['lower_upright_pivot'][1]
+                z_lower = self.kinData_values[axle]['lower_upright_pivot'][2]
 
                 # Calculate slope of line between the two points
                 slope = (y_upper - y_lower) / (x_upper - x_lower)
@@ -80,8 +93,10 @@ class AnalysisFeatures:
                 line_mirrored = self.ax.plot(x_line_extended_mirror, y_line_extended, z_line_extended, linestyle='--', linewidth=1, color='red')[0]
                 self.extended_WheelAxis_lines.append(line_mirrored)
                     
-
     def handle_checkRollCentre_state_changed(self, state):
+        """
+        Plot the roll centre of the vehicle based on kinematic data when checkbox ticked
+        """
         if hasattr(self, 'RollCentre_plot'):
             for plot in self.RollCentre_plot:
                 plot.remove()
@@ -90,12 +105,12 @@ class AnalysisFeatures:
         if state == Qt.Checked:
             self.RollCentre_plot = []
             
-            for position in ['front', 'rear']:
+            for axle in ['front', 'rear']:
                 # Coordinates of the upper and lower wishbone hardpoints
-                upper_leading_pivot = np.array(self.kinData_values[position]['upper_leading_pivot'])
-                lower_leading_pivot = np.array(self.kinData_values[position]['lower_leading_pivot'])
-                upper_trailing_pivot = np.array(self.kinData_values[position]['upper_trailling_pivot'])
-                lower_trailing_pivot = np.array(self.kinData_values[position]['lower_trailling_pivot'])
+                upper_leading_pivot = np.array(self.kinData_values[axle]['upper_leading_pivot'])
+                lower_leading_pivot = np.array(self.kinData_values[axle]['lower_leading_pivot'])
+                upper_trailing_pivot = np.array(self.kinData_values[axle]['upper_trailling_pivot'])
+                lower_trailing_pivot = np.array(self.kinData_values[axle]['lower_trailling_pivot'])
                                
                 # Calculate vectors representing the wishbones
                 wishbone1_vec = upper_trailing_pivot - upper_leading_pivot[0]  # Vector along the first wishbone
@@ -118,9 +133,11 @@ class AnalysisFeatures:
                     self.RollCentre_plot.append(roll_centre_marker)
                 else:
                     print("Roll center is at origin [0, 0, 0], indicating an error in calculation, possibly due to parallel wishbones") 
-                
-                
+                      
     def handle_checkShowTyres_state_changed(self, state):
+        """
+        Plot representations of tyres on the vehicle based on kinematic data when checkbox ticked
+        """
         if hasattr(self, 'tyre_plots'):
             for plot in self.tyre_plots:
                 plot.remove()
@@ -129,9 +146,9 @@ class AnalysisFeatures:
         if state == Qt.Checked:
             self.tyre_plots = []
             
-            for position in ['front', 'rear']:
-                upper_upright_pivot = np.array(self.kinData_values[position]['upper_upright_pivot'])
-                lower_upright_pivot = np.array(self.kinData_values[position]['lower_upright_pivot'])
+            for axle in ['front', 'rear']:
+                upper_upright_pivot = np.array(self.kinData_values[axle]['upper_upright_pivot'])
+                lower_upright_pivot = np.array(self.kinData_values[axle]['lower_upright_pivot'])
                 
                 # Calculate the midpoint between hardpoints 
                 midpoint = (upper_upright_pivot + lower_upright_pivot) / 2
@@ -152,14 +169,16 @@ class AnalysisFeatures:
                         tyre_plot = self.ax.plot(tyre_x, tyre_y, tyre_z)
                         self.tyre_plots.append(tyre_plot)
 
-
     def calculate_camber(self):
-        for position in ['front', 'rear']:
+        """
+        Calculate and update the camber angles of the vehicle's wheels.
+        """
+        for axle in ['front', 'rear']:
             # Coordinates of upright pivot
-            x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
-            y_upper = self.kinData_values[position]['upper_upright_pivot'][1]
-            x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
-            y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
+            x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
+            y_upper = self.kinData_values[axle]['upper_upright_pivot'][1]
+            x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
+            y_lower = self.kinData_values[axle]['lower_upright_pivot'][1]
 
             # Calculate slope
             slope = (y_upper - y_lower) / (x_upper - x_lower)
@@ -174,19 +193,22 @@ class AnalysisFeatures:
             camber_angle_degrees = 90 - angle_degrees
             
             # Populate tableOutput with camber value
-            if position == 'front':
+            if axle == 'front':
                 self.ui.tableOutput.setItem(0, 0, QTableWidgetItem(str(camber_angle_degrees)[0:6]))
             else:
                 self.ui.tableOutput.setItem(0, 1, QTableWidgetItem(str(camber_angle_degrees)[0:6]))
                 
     
     def calculate_toe(self):
-        for position in ['front', 'rear']:
+        """
+        Calculate and update the toe angles of the vehicle's wheels.
+        """
+        for axle in ['front', 'rear']:
             # Coordinates of the upper and lower upright pivot
-            x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
-            z_upper = self.kinData_values[position]['upper_upright_pivot'][2]
-            x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
-            z_lower = self.kinData_values[position]['lower_upright_pivot'][2]
+            x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
+            z_upper = self.kinData_values[axle]['upper_upright_pivot'][2]
+            x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
+            z_lower = self.kinData_values[axle]['lower_upright_pivot'][2]
 
             # Project the vectors onto the xz-plane by setting their y-components to 0
             vec_upper_proj = np.array([x_upper, 0, z_upper])
@@ -198,21 +220,24 @@ class AnalysisFeatures:
             angle_degrees = np.degrees(angle_radians)
 
             # Update tableOutput
-            if position == 'front':
+            if axle == 'front':
                 self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(str(angle_degrees)[0:6]))
             else:
                 self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(str(angle_degrees)[0:6]))
                 
                 
     def calculate_caster(self):
-        for position in ['front', 'rear']:
+        """
+        Calculate and update the caster angles of the vehicle's wheels.
+        """
+        for axle in ['front', 'rear']:
             # Coordinates of the upper and lower upright pivot
-            x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
-            y_upper = self.kinData_values[position]['upper_upright_pivot'][1]
-            z_upper = self.kinData_values[position]['upper_upright_pivot'][2]
-            x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
-            y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
-            z_lower = self.kinData_values[position]['lower_upright_pivot'][2]
+            x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
+            y_upper = self.kinData_values[axle]['upper_upright_pivot'][1]
+            z_upper = self.kinData_values[axle]['upper_upright_pivot'][2]
+            x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
+            y_lower = self.kinData_values[axle]['lower_upright_pivot'][1]
+            z_lower = self.kinData_values[axle]['lower_upright_pivot'][2]
 
             # Vector from lower to upper pivot
             vec_pivot = np.array([x_upper - x_lower, y_upper - y_lower, z_upper - z_lower])
@@ -227,7 +252,7 @@ class AnalysisFeatures:
             angle_string = str(round(angle_degrees, 2)) + "°"
 
             # Update tableOutput 
-            if position == 'front':
+            if axle == 'front':
                 self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(angle_string))
             else:
                 self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(angle_string))

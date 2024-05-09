@@ -18,7 +18,6 @@ class PlottingFeatures:
         self.setup_connections()
         self.analysis_features = None  # Initialize analysis_features attribute
         
-
     def setup_connections(self):
         self.ui.plotButton.clicked.connect(self.handle_plot_button_click) # 'Plot!' UI button
         # lambda function as connect expects slot function with 0 arguements
@@ -26,7 +25,6 @@ class PlottingFeatures:
         self.ui.sideViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('side')) 
         self.ui.topViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('top')) 
         self.ui.rearViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('rear')) 
-
 
     def handle_plot_button_click(self):
         self.kinData_values = self.get_kinData_values()
@@ -47,7 +45,6 @@ class PlottingFeatures:
         if not self.analysis_features:
             self.analysis_features = AnalysisFeatures(self, self.ui)
 
-
     def get_kinData_values(self):
         # Nested dictionary with 'front' and 'rear' nested
         self.kinData_values = {}
@@ -55,11 +52,11 @@ class PlottingFeatures:
         # Access the tab widget containing the tables
         tab_widget = self.ui.kinData
 
-        for position in ["front", "rear"]:
-            self.kinData_values[position] = {}
+        for axle in ["front", "rear"]:
+            self.kinData_values[axle] = {}
             
             # Access the correct table widget based on the position
-            table_widget_name = f"{position}Input"
+            table_widget_name = f"{axle}Input"
             table_widget = tab_widget.findChild(QtWidgets.QTableWidget, table_widget_name)
             
             for i, coordinate_name in enumerate(["upper_leading_pivot",
@@ -69,13 +66,13 @@ class PlottingFeatures:
                                                 "lower_trailling_pivot",
                                                 "lower_upright_pivot"]):
                 
-                self.kinData_values[position][coordinate_name] = []
+                self.kinData_values[axle][coordinate_name] = []
                 
                 for column in range(3):
                     # Accessing the item from the current table widget
                     item = table_widget.item(i, column)
                     if item is not None and item.text() != "":
-                        self.kinData_values[position][coordinate_name].append(float(item.text()))
+                        self.kinData_values[axle][coordinate_name].append(float(item.text()))
                     
         return self.kinData_values
                     
@@ -168,8 +165,7 @@ class PlottingFeatures:
             self.ax.axis('off')
 
             # Refresh canvas
-            self.canvas.draw()
-                
+            self.canvas.draw()            
         
     def plot_wishbones(self):
         for axle in ['front', 'rear']:
@@ -185,7 +181,6 @@ class PlottingFeatures:
                     self.ax.plot(x_line, y_line, z_line)
                     self.ax.plot(x_line_mirrored, y_line, z_line)
 
-    
     def handle_plot_view_button_click(self,view):
         if view == 'front':
             # Set view parallel to the x-axis
