@@ -20,6 +20,7 @@ class AnalysisFeatures:
         self.setup_connections()
         self.calculate_camber()
         self.calculate_toe()
+        self.calculate_caster()
         
             
     def setup_connections(self):
@@ -201,3 +202,33 @@ class AnalysisFeatures:
                 self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(str(angle_degrees)[0:6]))
             else:
                 self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(str(angle_degrees)[0:6]))
+                
+                
+    def calculate_caster_angle(self):
+        for position in ['front', 'rear']:
+            # Coordinates of the upper and lower upright pivot
+            x_upper = self.kinData_values[position]['upper_upright_pivot'][0]
+            y_upper = self.kinData_values[position]['upper_upright_pivot'][1]
+            z_upper = self.kinData_values[position]['upper_upright_pivot'][2]
+            x_lower = self.kinData_values[position]['lower_upright_pivot'][0]
+            y_lower = self.kinData_values[position]['lower_upright_pivot'][1]
+            z_lower = self.kinData_values[position]['lower_upright_pivot'][2]
+
+            # Vector from lower to upper pivot
+            vec_pivot = np.array([x_upper - x_lower, y_upper - y_lower, z_upper - z_lower])
+
+            # Vector in the vertical direction
+            vec_vertical = np.array([0, 1, 0])
+
+            # Calculate the angle between the pivot vector and the vertical
+            cos_angle = np.dot(vec_pivot, vec_vertical) / (np.linalg.norm(vec_pivot) * np.linalg.norm(vec_vertical))
+            angle_radians = np.arccos(cos_angle)
+            angle_degrees = np.degrees(angle_radians)
+            angle_string = str(round(angle_degrees, 2)) + "°"
+
+            # Update tableOutput 
+            if position == 'front':
+                self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(angle_string))
+            else:
+                self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(angle_string))
+        
