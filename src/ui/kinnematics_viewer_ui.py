@@ -306,47 +306,53 @@ class Ui_MainWindow(object):
 
 class KinematicsViewer(QtWidgets.QMainWindow):
     def __init__(self):
+        """
+        Class to initialise UI Main Window and all other classes
+        """
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.import_features = ImportFeatures(self.ui)
         self.plotting_features = PlottingFeatures(self.ui)
-        self.export_features = ExportFeatures(self.ui, self.plotting_features)
+        self.export_features = ExportFeatures(self.ui)
         
         # Connect actionReset to the restart slot
         self.ui.actionReset.triggered.connect(self.restart)
 
-    
     def restart(self):
-            # Clear all input data
-            for tab in ["frontInput", "rearInput"]:
-                table_widget = getattr(self.ui, tab)
-                for row in range(table_widget.rowCount()):
-                    # Iterate through columns starting from the second column (index 1)
-                    for col in range(0, table_widget.columnCount()):
-                        item = table_widget.item(row, col)  # Get the item in the current cell
-                        if item:
-                            item.setText("")  # Clear the cell content
-                
-            # Clear tables
-            self.ui.tableOutput.clearContents()
+        """ 
+        Clears all user input into UITable and clears plots,
+        resets all buttons. 
+        """
+        # Clear all input data
+        for tab in ["frontInput", "rearInput"]:
+            table_widget = getattr(self.ui, tab)
+            for row in range(table_widget.rowCount()):
+                # Iterate through columns starting from the second column (index 1)
+                for col in range(0, table_widget.columnCount()):
+                    item = table_widget.item(row, col)  # Get the item in the current cell
+                    if item:
+                        item.setText("")  # Clear the cell content
             
-            # Clear the contents of plot if not empty
-            if hasattr(self.plotting_features, 'ax'):
-                self.plotting_features.ax.clear()
-                
-            # Untick and disable checkboxes
-            self.ui.checkRollCentre.setChecked(False)
-            self.ui.checkRollCentre.setEnabled(False)
-            self.ui.checkWheelAxis.setChecked(False)
-            self.ui.checkWheelAxis.setEnabled(False)
-            self.ui.checkShowTyres.setChecked(False) 
-            self.ui.checkShowTyres.setEnabled(False)
+        # Clear tables
+        self.ui.tableOutput.clearContents()
+        
+        # Clear the contents of plot if not empty
+        if hasattr(self.plotting_features, 'ax'):
+            self.plotting_features.ax.clear()
             
-            # Disable viewing option buttons
-            self.ui.frontViewButton.setEnabled(False)
-            self.ui.rearViewButton.setEnabled(False)
-            self.ui.sideViewButton.setEnabled(False)
-            self.ui.topViewButton.setEnabled(False) 
+        # Untick and disable checkboxes
+        self.ui.checkRollCentre.setChecked(False)
+        self.ui.checkRollCentre.setEnabled(False)
+        self.ui.checkWheelAxis.setChecked(False)
+        self.ui.checkWheelAxis.setEnabled(False)
+        self.ui.checkShowTyres.setChecked(False) 
+        self.ui.checkShowTyres.setEnabled(False)
+        
+        # Disable viewing option buttons
+        self.ui.frontViewButton.setEnabled(False)
+        self.ui.rearViewButton.setEnabled(False)
+        self.ui.sideViewButton.setEnabled(False)
+        self.ui.topViewButton.setEnabled(False) 
 
             

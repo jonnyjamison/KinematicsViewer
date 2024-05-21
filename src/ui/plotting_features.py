@@ -160,6 +160,11 @@ class PlottingFeatures:
             self.ax.set_ylim(axis_limit_lower, axis_limit_upper)
             self.ax.set_zlim(axis_limit_lower, axis_limit_upper)
             
+            # Set initial view parallel to the x-axis
+            self.ax.view_init(elev=180, azim=270)
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()
+            canvas.draw()
+            
             # Hide grid lines and axis
             self.ax.grid(False)
             self.ax.axis('off')
@@ -191,17 +196,17 @@ class PlottingFeatures:
         elif view == 'side':
             # Set view parallel to the x-axis
             self.ax.view_init(elev=0, azim=0)
-            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()
             canvas.draw()
             
         elif view == 'top':
             # Set view parallel to the x-axis
             self.ax.view_init(elev=180, azim=270)
-            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()  
             canvas.draw()
             
         elif view == 'rear':
             # Set view parallel to the x-axis
             self.ax.view_init(elev=-90, azim=90)
-            canvas = self.ui.plotArea.layout().itemAt(1).widget()  # Assuming the canvas is the second widget in the layout
+            canvas = self.ui.plotArea.layout().itemAt(1).widget()
             canvas.draw()

@@ -135,7 +135,8 @@ class AnalysisFeatures:
                       
     def handle_checkShowTyres_state_changed(self, state):
         """
-        Plot representations of tyres on the vehicle based on kinematic data when checkbox ticked
+        Plot representations of tyres on the vehicle based on 
+        kinematic data when checkbox ticked
         """
         if hasattr(self, 'tyre_plots'):
             for plot in self.tyre_plots:
