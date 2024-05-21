@@ -1,11 +1,6 @@
-## TODO
-# Check that the table is not empty
-
 import shutil
 import os
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QTableWidgetItem
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from openpyxl import load_workbook
 
 class ExportFeatures:

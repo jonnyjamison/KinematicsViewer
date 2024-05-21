@@ -10,7 +10,6 @@
 
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow
 from ui.plotting_features import PlottingFeatures
 from ui.import_features import ImportFeatures
 from ui.export_features import ExportFeatures

@@ -1,11 +1,8 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QToolBar 
-from PyQt5.QtWidgets import QTableWidgetItem, QVBoxLayout, QWidget
-import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QVBoxLayout, QMessageBox
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import numpy as np
 from ui.analysis_features import AnalysisFeatures
 
 class PlottingFeatures:
@@ -27,23 +24,27 @@ class PlottingFeatures:
         self.ui.rearViewButton.clicked.connect(lambda: self.handle_plot_view_button_click('rear')) 
 
     def handle_plot_button_click(self):
-        self.kinData_values = self.get_kinData_values()
-        self.plot_coordinates()
-        
-        # Re-enable plot viewing buttons
-        self.ui.frontViewButton.setEnabled(True)
-        self.ui.topViewButton.setEnabled(True)
-        self.ui.sideViewButton.setEnabled(True)
-        self.ui.rearViewButton.setEnabled(True)
-        
-        # Re-enable check boxes
-        self.ui.checkRollCentre.setEnabled(True)
-        self.ui.checkWheelAxis.setEnabled(True)
-        self.ui.checkShowTyres.setEnabled(True)
+        try:
+            self.kinData_values = self.get_kinData_values()
+            self.plot_coordinates()
+            
+            # Re-enable plot viewing buttons
+            self.ui.frontViewButton.setEnabled(True)
+            self.ui.topViewButton.setEnabled(True)
+            self.ui.sideViewButton.setEnabled(True)
+            self.ui.rearViewButton.setEnabled(True)
+            
+            # Re-enable check boxes
+            self.ui.checkRollCentre.setEnabled(True)
+            self.ui.checkWheelAxis.setEnabled(True)
+            self.ui.checkShowTyres.setEnabled(True)
 
-        # Create instance of analysis_features for Roll centre, etc. 
-        if not self.analysis_features:
-            self.analysis_features = AnalysisFeatures(self, self.ui)
+            # Create instance of analysis_features for Roll centre, etc. 
+            if not self.analysis_features:
+                self.analysis_features = AnalysisFeatures(self, self.ui)
+                
+        except:
+            self.show_coord_error_dialog()
 
     def get_kinData_values(self):
         # Nested dictionary with 'front' and 'rear' nested
@@ -210,3 +211,11 @@ class PlottingFeatures:
             self.ax.view_init(elev=-90, azim=90)
             canvas = self.ui.plotArea.layout().itemAt(1).widget()
             canvas.draw()
+              
+    def show_coord_error_dialog(self):
+        error_box = QMessageBox()
+        error_box.setIcon(QMessageBox.Critical)
+        error_box.setWindowTitle("Error")
+        error_box.setText("Error with coordinates. Please check all values are present and are numeric")
+        error_box.setStandardButtons(QMessageBox.Ok)
+        error_box.exec_()
