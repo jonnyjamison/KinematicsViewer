@@ -8,7 +8,6 @@ class AnalysisFeatures:
     """
     A class for plotting analysis of geometry and calculating metrics such as camber, toe, and caster.
     """
-
     def __init__(self, plotting_features, ui):
         """
         Initialize AnalysisFeatures object.
@@ -104,13 +103,13 @@ class AnalysisFeatures:
             
             for axle in ['front', 'rear']:
                 # Coordinates of the upper and lower wishbone hardpoints
-                upper_leading_pivot = self.get_hardpoint(axle, 'upper_leading_pivot')
-                lower_leading_pivot = self.get_hardpoint(axle, 'lower_leading_pivot')
-                upper_trailing_pivot = self.get_hardpoint(axle, 'upper_trailling_pivot')
-                lower_trailing_pivot = self.get_hardpoint(axle, 'lower_trailling_pivot')
+                upper_leading_pivot = np.array(self.get_hardpoint(axle, 'upper_leading_pivot'))
+                lower_leading_pivot = np.array(self.get_hardpoint(axle, 'lower_leading_pivot'))
+                upper_trailing_pivot = np.array(self.get_hardpoint(axle, 'upper_trailling_pivot'))
+                lower_trailing_pivot = np.array(self.get_hardpoint(axle, 'lower_trailling_pivot'))
                                
                 # Calculate vectors representing the wishbones
-                wishbone1_vec = upper_trailing_pivot - upper_leading_pivot[0]  # Vector along the first wishbone
+                wishbone1_vec = upper_trailing_pivot - upper_leading_pivot  # Vector along the first wishbone
                 wishbone2_vec = lower_trailing_pivot - lower_leading_pivot # Vector along the second wishbone
                 
                 # Calculate the normal vectors to the wishbones
@@ -148,7 +147,7 @@ class AnalysisFeatures:
                 upper_upright_pivot = np.array(self.get_hardpoint(axle, 'upper_leading_pivot'))
                 lower_upright_pivot = np.array(self.get_hardpoint(axle, 'lower_upright_pivot'))
                                 
-                # Calculate the midpoint between hardpoints 
+                # Calculate the midpoint between hardpoints for wheel centre
                 midpoint = (upper_upright_pivot + lower_upright_pivot) / 2
 
                 # Define the diameter of the tyre
@@ -242,9 +241,9 @@ class AnalysisFeatures:
 
             # Update tableOutput 
             if axle == 'front':
-                self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(angle_string))
+                self.ui.tableOutput.setItem(2, 0, QTableWidgetItem(angle_string))
             else:
-                self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(angle_string))
+                self.ui.tableOutput.setItem(2, 1, QTableWidgetItem(angle_string))
     
     def get_hardpoint(self, axle, location):
         """
