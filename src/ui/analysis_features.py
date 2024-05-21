@@ -144,7 +144,7 @@ class AnalysisFeatures:
             self.tyre_plots = []
             
             for axle in ['front', 'rear']:
-                upper_upright_pivot = np.array(self.get_hardpoint(axle, 'upper_leading_pivot'))
+                upper_upright_pivot = np.array(self.get_hardpoint(axle, 'upper_upright_pivot'))
                 lower_upright_pivot = np.array(self.get_hardpoint(axle, 'lower_upright_pivot'))
                                 
                 # Calculate the midpoint between hardpoints for wheel centre
