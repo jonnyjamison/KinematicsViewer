@@ -17,7 +17,7 @@ class AnalysisFeatures:
 
         Parameters:
             plotting_features (PlottingFeatures): An instance of PlottingFeatures containing data for plotting.
-            ui (UIWidget): An instance of UIWidget for interacting with the user interface.
+            ui (UIWidget): An instance of UIWidget (KinematicsViewer) for interacting with the user interface.
         """
         self.ui = ui
         #self.ui = plotting_features.ui
@@ -53,14 +53,13 @@ class AnalysisFeatures:
             self.extended_WheelAxis_lines = []
             for axle in ['front', 'rear']:
                 # Coordinates of the upper upright pivot
-                x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
-                y_upper = self.kinData_values[axle]['upper_upright_pivot'][1]
-                z_upper = self.kinData_values[axle]['upper_upright_pivot'][2]
-
+                x_upper = self.get_hardpoint(axle,'upper_upright_pivot')[0]
+                y_upper = self.get_hardpoint(axle,'upper_upright_pivot')[1]
+                z_upper = self.get_hardpoint(axle,'upper_upright_pivot')[2]
                 # Coordinates of the lower upright pivot
-                x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
-                y_lower = self.kinData_values[axle]['lower_upright_pivot'][1]
-                z_lower = self.kinData_values[axle]['lower_upright_pivot'][2]
+                x_lower = self.get_hardpoint(axle,'lower_upright_pivot')[0]
+                y_lower = self.get_hardpoint(axle,'lower_upright_pivot')[1]
+                z_lower = self.get_hardpoint(axle,'lower_upright_pivot')[2]
 
                 # Calculate slope of line between the two points
                 slope = (y_upper - y_lower) / (x_upper - x_lower)
@@ -107,10 +106,10 @@ class AnalysisFeatures:
             
             for axle in ['front', 'rear']:
                 # Coordinates of the upper and lower wishbone hardpoints
-                upper_leading_pivot = np.array(self.kinData_values[axle]['upper_leading_pivot'])
-                lower_leading_pivot = np.array(self.kinData_values[axle]['lower_leading_pivot'])
-                upper_trailing_pivot = np.array(self.kinData_values[axle]['upper_trailling_pivot'])
-                lower_trailing_pivot = np.array(self.kinData_values[axle]['lower_trailling_pivot'])
+                upper_leading_pivot = self.get_hardpoint(axle, 'upper_leading_pivot')
+                lower_leading_pivot = self.get_hardpoint(axle, 'lower_leading_pivot')
+                upper_trailing_pivot = self.get_hardpoint(axle, 'upper_trailling_pivot')
+                lower_trailing_pivot = self.get_hardpoint(axle, 'lower_trailling_pivot')
                                
                 # Calculate vectors representing the wishbones
                 wishbone1_vec = upper_trailing_pivot - upper_leading_pivot[0]  # Vector along the first wishbone
@@ -147,9 +146,9 @@ class AnalysisFeatures:
             self.tyre_plots = []
             
             for axle in ['front', 'rear']:
-                upper_upright_pivot = np.array(self.kinData_values[axle]['upper_upright_pivot'])
-                lower_upright_pivot = np.array(self.kinData_values[axle]['lower_upright_pivot'])
-                
+                upper_upright_pivot = np.array(self.get_hardpoint(axle, 'upper_leading_pivot'))
+                lower_upright_pivot = np.array(self.get_hardpoint(axle, 'lower_upright_pivot'))
+                                
                 # Calculate the midpoint between hardpoints 
                 midpoint = (upper_upright_pivot + lower_upright_pivot) / 2
 
@@ -175,16 +174,11 @@ class AnalysisFeatures:
         """
         for axle in ['front', 'rear']:
             # Coordinates of upright pivot
-            x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
-            y_upper = self.kinData_values[axle]['upper_upright_pivot'][1]
-            x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
-            y_lower = self.kinData_values[axle]['lower_upright_pivot'][1]
-
-            # Calculate slope
-            slope = (y_upper - y_lower) / (x_upper - x_lower)
+            upper_upright_pivot = self.get_hardpoint(axle, 'upper_upright_pivot')
+            lower_upright_pivot = self.get_hardpoint(axle, 'lower_upright_pivot')
 
             # Calculate angle in radians
-            angle_radians = math.atan2(y_upper - y_lower, x_upper - x_lower)
+            angle_radians = math.atan2(upper_upright_pivot[1] - lower_upright_pivot[1], upper_upright_pivot[0] - lower_upright_pivot[0])
 
             # Convert angle from radians to degrees
             angle_degrees = math.degrees(angle_radians)
@@ -205,14 +199,12 @@ class AnalysisFeatures:
         """
         for axle in ['front', 'rear']:
             # Coordinates of the upper and lower upright pivot
-            x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
-            z_upper = self.kinData_values[axle]['upper_upright_pivot'][2]
-            x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
-            z_lower = self.kinData_values[axle]['lower_upright_pivot'][2]
+            upper_upright_pivot = self.get_hardpoint(axle, 'upper_upright_pivot')
+            lower_upright_pivot = self.get_hardpoint(axle, 'lower_upright_pivot')
 
             # Project the vectors onto the xz-plane by setting their y-components to 0
-            vec_upper_proj = np.array([x_upper, 0, z_upper])
-            vec_lower_proj = np.array([x_lower, 0, z_lower])
+            vec_upper_proj = np.array([upper_upright_pivot[0], 0, upper_upright_pivot[2]]) # x & z
+            vec_lower_proj = np.array([lower_upright_pivot[0], 0, lower_upright_pivot[2]]) # x & z
 
             # Calculate the angle between the projected vectors
             cos_angle = np.dot(vec_upper_proj, vec_lower_proj) / (np.linalg.norm(vec_upper_proj) * np.linalg.norm(vec_lower_proj))
@@ -231,16 +223,14 @@ class AnalysisFeatures:
         Calculate and update the caster angles of the vehicle's wheels.
         """
         for axle in ['front', 'rear']:
-            # Coordinates of the upper and lower upright pivot
-            x_upper = self.kinData_values[axle]['upper_upright_pivot'][0]
-            y_upper = self.kinData_values[axle]['upper_upright_pivot'][1]
-            z_upper = self.kinData_values[axle]['upper_upright_pivot'][2]
-            x_lower = self.kinData_values[axle]['lower_upright_pivot'][0]
-            y_lower = self.kinData_values[axle]['lower_upright_pivot'][1]
-            z_lower = self.kinData_values[axle]['lower_upright_pivot'][2]
+            # Coordinates of the upper and lower upright 
+            upper_upright_pivot = self.get_hardpoint(axle, 'upper_upright_pivot')
+            lower_upright_pivot = self.get_hardpoint(axle, 'lower_upright_pivot')
 
             # Vector from lower to upper pivot
-            vec_pivot = np.array([x_upper - x_lower, y_upper - y_lower, z_upper - z_lower])
+            vec_pivot = np.array([upper_upright_pivot[0] - lower_upright_pivot[0], 
+                                  upper_upright_pivot[1] - lower_upright_pivot[1], 
+                                  upper_upright_pivot[2] - lower_upright_pivot[2]])
 
             # Vector in the vertical direction
             vec_vertical = np.array([0, 1, 0])
@@ -256,4 +246,10 @@ class AnalysisFeatures:
                 self.ui.tableOutput.setItem(1, 0, QTableWidgetItem(angle_string))
             else:
                 self.ui.tableOutput.setItem(1, 1, QTableWidgetItem(angle_string))
-        
+    
+    def get_hardpoint(self, axle, location):
+        """
+        Retrieve the coordinates of a specific hardpoint based on the axle and location.
+        Axle is either 'front' or 'rear'
+        """
+        return self.kinData_values[axle][location]

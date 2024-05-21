@@ -13,10 +13,8 @@ class ImportFeatures:
         self.ui = ui 
         self.setup_connections()
 
-
     def setup_connections(self):
         self.ui.actionImport_from_xls.triggered.connect(self.handle_import_action_triggered)
-
 
     def handle_import_action_triggered(self):
         # Select xlsx file for import using file dialouge
@@ -25,13 +23,12 @@ class ImportFeatures:
         file_dialog.setNameFilter("Excel Files (*.xlsx)")
         file_dialog.setOption(QFileDialog.DontUseNativeDialog, True)  # Ensure single file selection
         if file_dialog.exec_():
-            selected_files = file_dialog.selectedFiles()
-            if selected_files:
-                file_path = selected_files[0]
+            selected_file = file_dialog.selectedFiles()
+            if selected_file:
+                file_path = selected_file[0]
                 print("Selected file:", file_path)
                 self.read_excel_data(file_path)
 
-                
     def read_excel_data(self, file_path):
         workbook = load_workbook(filename=file_path)
         # Read data from the first sheet
@@ -39,22 +36,20 @@ class ImportFeatures:
                                 
         # Add data to kinData UI Table
         # For front 
-        table_start_row = 0
-        table_start_col = 0
-        for xlsx_row, table_row in zip(range(3, 9), range(table_start_row, table_start_row + 6)):
-            # Iterate over columns in the XLSX data
-            for xlsx_col, table_col in zip(range(2, 5), range(table_start_col, table_start_col + 3)):
-                # Retrieve the value from the XLSX file
+        table_start_row = 0 # Edit if UITable gets updated
+        table_start_col = 0 # Edit if UITable gets updated
+        for xlsx_row, table_row in zip(range(3, 9), range(table_start_row, table_start_row + 6)): # Iterate over rows
+            for xlsx_col, table_col in zip(range(2, 5), range(table_start_col, table_start_col + 3)): # Iterate over columns 
+                # Retrieve the value from the xlsx file
                 value = xlsx_data.cell(row=xlsx_row, column=xlsx_col).value
-                # Create a QTableWidgetItem with the value
+                # Create a QTableWidgetItem with the values
                 item = QTableWidgetItem(str(value))
                 # Set the item in the table at the corresponding row and column
                 self.ui.frontInput.setItem(table_row, table_col, item)
                 
         # For rear 
-        for xlsx_row, table_row in zip(range(3, 9), range(table_start_row, table_start_row + 6)):
-            # Iterate over columns in the xlsx data
-            for xlsx_col, table_col in zip(range(5, 8), range(table_start_col, table_start_col + 3)):
+        for xlsx_row, table_row in zip(range(3, 9), range(table_start_row, table_start_row + 6)): # Iterate over rows
+            for xlsx_col, table_col in zip(range(5, 8), range(table_start_col, table_start_col + 3)): # Iterate over columns
                 # Retrieve the value from the xlsx file
                 value = xlsx_data.cell(row=xlsx_row, column=xlsx_col).value
                 # Create a QTableWidgetItem with the value

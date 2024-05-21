@@ -13,6 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from ui.plotting_features import PlottingFeatures
 from ui.import_features import ImportFeatures
+from ui.export_features import ExportFeatures
 
 
 class Ui_MainWindow(object):
@@ -310,6 +311,7 @@ class KinematicsViewer(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.import_features = ImportFeatures(self.ui)
         self.plotting_features = PlottingFeatures(self.ui)
+        self.export_features = ExportFeatures(self.ui, self.plotting_features)
         
         # Connect actionReset to the restart slot
         self.ui.actionReset.triggered.connect(self.restart)
