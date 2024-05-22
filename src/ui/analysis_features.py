@@ -136,10 +136,11 @@ class AnalysisFeatures:
         kinematic data when checkbox ticked
         """
         if hasattr(self, 'tyre_plots'):
-            for plot in self.tyre_plots:
-                plot.remove()
+            for line in self.tyre_plots:
+                line.remove()
+            self.tyre_plots.clear()
             del self.tyre_plots
-        
+  
         if state == Qt.Checked:
             self.tyre_plots = []
             
@@ -164,7 +165,7 @@ class AnalysisFeatures:
                         tyre_z = midpoint[2] + np.cos(np.linspace(0, 2*np.pi, 100)) * tyre_radius
                         tyre_y = midpoint[1] + np.sin(np.linspace(0, 2*np.pi, 100)) * tyre_radius
                         tyre_plot = self.ax.plot(tyre_x, tyre_y, tyre_z)
-                        self.tyre_plots.append(tyre_plot)
+                        self.tyre_plots.extend(tyre_plot)
 
     def calculate_camber(self):
         """
